@@ -1,4 +1,8 @@
-import { Hero, Navbar } from "@/features/landing/components"
+import {
+  Features,
+  Hero,
+  Navbar,
+} from "@/features/landing/components"
 
 export default function Home() {
   return (
@@ -7,16 +11,7 @@ export default function Home() {
 
       <Hero />
 
-      <section
-        id="features"
-        className="min-h-screen bg-black px-6 py-32"
-      >
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold text-white">
-            Features
-          </h2>
-        </div>
-      </section>
+      <Features />
 
       <section
         id="ai-demo"
