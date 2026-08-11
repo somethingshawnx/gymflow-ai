@@ -1,6 +1,7 @@
 import {
   Features,
   Hero,
+  HowItWorks,
   Navbar,
 } from "@/features/landing/components"
 
@@ -12,6 +13,8 @@ export default function Home() {
       <Hero />
 
       <Features />
+
+      <HowItWorks />
 
       <section
         id="ai-demo"

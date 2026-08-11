@@ -12,3 +12,6 @@ export { HeroChatPreview } from "./HeroChatPreview"
 export { Features } from "./Features"
 export { FeatureCard } from "./FeatureCard"
 export { FeaturesGrid } from "./FeaturesGrid"
+
+export { HowItWorks } from "./HowItWorks"
+export { WorkflowStep } from "./WorkflowStep"
