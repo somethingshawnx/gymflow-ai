@@ -1,4 +1,5 @@
 import {
+  AIDemo,
   Features,
   Hero,
   HowItWorks,
@@ -16,16 +17,7 @@ export default function Home() {
 
       <HowItWorks />
 
-      <section
-        id="ai-demo"
-        className="min-h-screen bg-zinc-950 px-6 py-32"
-      >
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-4xl font-bold text-white">
-            AI Demo
-          </h2>
-        </div>
-      </section>
+      <AIDemo />
 
       <section
         id="contact"
