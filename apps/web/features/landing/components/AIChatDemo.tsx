@@ -1,6 +1,11 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import {
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import { Bot, Send, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -22,8 +27,22 @@ const initialMessages: Message[] = [
 ]
 
 function generateResponse(message: string) {
-  const text = message.toLowerCase()
+  const text = message.toLowerCase().trim()
 
+  // Positive confirmation
+  if (
+    text === "yes" ||
+    text === "yeah" ||
+    text === "yep" ||
+    text === "sure" ||
+    text === "okay" ||
+    text === "ok" ||
+    text === "sounds good"
+  ) {
+    return "Awesome! 🎉 Let's get you started. You can book your free trial and our team will help you choose the best time for your visit."
+  }
+
+  // Weight loss
   if (
     text.includes("weight") ||
     text.includes("lose") ||
@@ -32,22 +51,56 @@ function generateResponse(message: string) {
     return "Great goal! 💪 I'd recommend our Pro Membership with personal training support. Would you like to book a free trial?"
   }
 
+  // Muscle and strength
+  if (
+    text.includes("muscle") ||
+    text.includes("muscles") ||
+    text.includes("bulk") ||
+    text.includes("strength")
+  ) {
+    return "That's a great goal! 💪 Our Pro Membership gives you unlimited gym access and personal training support to help you build strength consistently."
+  }
+
+  // Pricing
   if (
     text.includes("price") ||
     text.includes("cost") ||
-    text.includes("membership")
+    text.includes("membership") ||
+    text.includes("plan")
   ) {
     return "Our Pro Membership starts at ₹2,999/month and includes unlimited gym access and personal training support."
   }
 
+  // Free trial
   if (
     text.includes("trial") ||
-    text.includes("visit")
+    text.includes("visit") ||
+    text.includes("free")
   ) {
     return "Absolutely! You can book a free trial and experience the gym before committing to a membership."
   }
 
-  return "I'd be happy to help! Tell me about your fitness goal, preferred training style, or what you're looking for in a gym."
+  // Booking
+  if (
+    text.includes("book") ||
+    text.includes("booking") ||
+    text.includes("appointment")
+  ) {
+    return "Perfect! I can help you get started. You can book a free trial and our team will help you choose a convenient time."
+  }
+
+  // General fitness
+  if (
+    text.includes("gym") ||
+    text.includes("fitness") ||
+    text.includes("workout") ||
+    text.includes("exercise")
+  ) {
+    return "I'd love to help! 💪 Tell me your main fitness goal—losing weight, building muscle, improving fitness, or something else—and I'll recommend the right option."
+  }
+
+  // Fallback
+  return "I'd be happy to help! Tell me about your fitness goal, preferred training style, membership requirements, or ask about our free trial."
 }
 
 export function AIChatDemo() {
@@ -57,14 +110,34 @@ export function AIChatDemo() {
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  // Reference to the chat messages container
+  const messagesContainerRef =
+    useRef<HTMLDivElement>(null)
+
+  // Scroll ONLY inside the chat container
+  useEffect(() => {
+    const container = messagesContainerRef.current
+
+    if (!container) {
+      return
+    }
+
+    container.scrollTop = container.scrollHeight
+  }, [messages, isTyping])
+
+  const handleSubmit = (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault()
+    event.stopPropagation()
 
     const trimmedInput = input.trim()
 
     if (!trimmedInput || isTyping) {
       return
     }
+
+    console.log("MESSAGE:", trimmedInput)
 
     const userMessage: Message = {
       id: Date.now(),
@@ -124,7 +197,10 @@ export function AIChatDemo() {
       </div>
 
       {/* Messages */}
-      <div className="flex min-h-[430px] flex-col gap-4 overflow-y-auto p-5">
+      <div
+        ref={messagesContainerRef}
+        className="flex min-h-[430px] max-h-[430px] flex-col gap-4 overflow-y-auto p-5"
+      >
         {messages.map((message) => (
           <ChatMessage
             key={message.id}
@@ -133,19 +209,22 @@ export function AIChatDemo() {
           />
         ))}
 
+        {/* Typing indicator */}
         {isTyping && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex gap-3"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
               <Bot className="h-4 w-4" />
             </div>
 
             <div className="flex items-center gap-1 rounded-2xl rounded-tl-md bg-white/5 px-4 py-4">
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-500" />
+
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-500 [animation-delay:150ms]" />
+
               <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-500 [animation-delay:300ms]" />
             </div>
           </motion.div>
@@ -159,19 +238,21 @@ export function AIChatDemo() {
       >
         <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] p-2">
           <input
+            type="text"
             value={input}
             onChange={(event) =>
               setInput(event.target.value)
             }
             placeholder="Ask GymFlow AI..."
+            autoComplete="off"
             className="flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-zinc-600"
           />
 
           <button
             type="submit"
             disabled={!input.trim() || isTyping}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white transition-all hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
             aria-label="Send message"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white transition-all hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
           </button>
