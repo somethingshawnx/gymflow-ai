@@ -9,6 +9,8 @@ import {
 import { Bot, Send, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
 
+import { generateGymFlowResponse } from "@/services/ai"
+
 import { ChatMessage } from "./ChatMessage"
 
 interface Message {
@@ -25,83 +27,6 @@ const initialMessages: Message[] = [
       "Hi! 👋 I'm GymFlow AI. What are you looking to achieve with your fitness journey?",
   },
 ]
-
-function generateResponse(message: string) {
-  const text = message.toLowerCase().trim()
-
-  // Positive confirmation
-  if (
-    text === "yes" ||
-    text === "yeah" ||
-    text === "yep" ||
-    text === "sure" ||
-    text === "okay" ||
-    text === "ok" ||
-    text === "sounds good"
-  ) {
-    return "Awesome! 🎉 Let's get you started. You can book your free trial and our team will help you choose the best time for your visit."
-  }
-
-  // Weight loss
-  if (
-    text.includes("weight") ||
-    text.includes("lose") ||
-    text.includes("fat")
-  ) {
-    return "Great goal! 💪 I'd recommend our Pro Membership with personal training support. Would you like to book a free trial?"
-  }
-
-  // Muscle and strength
-  if (
-    text.includes("muscle") ||
-    text.includes("muscles") ||
-    text.includes("bulk") ||
-    text.includes("strength")
-  ) {
-    return "That's a great goal! 💪 Our Pro Membership gives you unlimited gym access and personal training support to help you build strength consistently."
-  }
-
-  // Pricing
-  if (
-    text.includes("price") ||
-    text.includes("cost") ||
-    text.includes("membership") ||
-    text.includes("plan")
-  ) {
-    return "Our Pro Membership starts at ₹2,999/month and includes unlimited gym access and personal training support."
-  }
-
-  // Free trial
-  if (
-    text.includes("trial") ||
-    text.includes("visit") ||
-    text.includes("free")
-  ) {
-    return "Absolutely! You can book a free trial and experience the gym before committing to a membership."
-  }
-
-  // Booking
-  if (
-    text.includes("book") ||
-    text.includes("booking") ||
-    text.includes("appointment")
-  ) {
-    return "Perfect! I can help you get started. You can book a free trial and our team will help you choose a convenient time."
-  }
-
-  // General fitness
-  if (
-    text.includes("gym") ||
-    text.includes("fitness") ||
-    text.includes("workout") ||
-    text.includes("exercise")
-  ) {
-    return "I'd love to help! 💪 Tell me your main fitness goal—losing weight, building muscle, improving fitness, or something else—and I'll recommend the right option."
-  }
-
-  // Fallback
-  return "I'd be happy to help! Tell me about your fitness goal, preferred training style, membership requirements, or ask about our free trial."
-}
 
 export function AIChatDemo() {
   const [messages, setMessages] =
@@ -157,7 +82,7 @@ export function AIChatDemo() {
       const response: Message = {
         id: Date.now() + 1,
         role: "assistant",
-        content: generateResponse(trimmedInput),
+        content: generateGymFlowResponse(trimmedInput),
       }
 
       setMessages((previous) => [
