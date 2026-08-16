@@ -10,6 +10,7 @@ import { Bot, Send, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { generateGymFlowResponse } from "@/services/ai"
+import { qualifyLead } from "@/services/leads"
 
 import { ChatMessage } from "./ChatMessage"
 
@@ -64,6 +65,14 @@ export function AIChatDemo() {
 
     console.log("MESSAGE:", trimmedInput)
 
+    // Qualify the potential lead
+    const qualification = qualifyLead(trimmedInput)
+
+    console.log(
+      "LEAD QUALIFICATION:",
+      qualification
+    )
+
     const userMessage: Message = {
       id: Date.now(),
       role: "user",
@@ -82,7 +91,8 @@ export function AIChatDemo() {
       const response: Message = {
         id: Date.now() + 1,
         role: "assistant",
-        content: generateGymFlowResponse(trimmedInput),
+        content:
+          generateGymFlowResponse(trimmedInput),
       }
 
       setMessages((previous) => [

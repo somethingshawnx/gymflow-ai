@@ -19,3 +19,5 @@ export { WorkflowStep } from "./WorkflowStep"
 export { AIDemo } from "./AIDemo"
 export { AIChatDemo } from "./AIChatDemo"
 export { ChatMessage } from "./ChatMessage"
+
+export { Contact } from "./contact"
