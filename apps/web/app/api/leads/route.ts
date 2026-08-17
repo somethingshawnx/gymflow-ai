@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { createLead } from "@/services/leads"
+
 export const runtime = "nodejs"
 
 interface LeadRequest {
@@ -51,14 +53,12 @@ export async function POST(request: Request) {
       )
     }
 
-    const lead = {
-      id: crypto.randomUUID(),
+    const lead = await createLead({
       name,
       email,
       gym,
       message,
-      createdAt: new Date().toISOString(),
-    }
+    })
 
     console.log("NEW GYMFLOW LEAD:", lead)
 
@@ -67,7 +67,12 @@ export async function POST(request: Request) {
         success: true,
         message:
           "Your demo request has been received.",
-        lead,
+        lead: {
+          id: lead.id,
+          intent: lead.intent,
+          score: lead.score,
+          status: lead.status,
+        },
       },
       { status: 201 }
     )

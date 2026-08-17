@@ -10,7 +10,7 @@ import { Bot, Send, Sparkles } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { generateGymFlowResponse } from "@/services/ai"
-import { qualifyLead } from "@/services/leads"
+import { qualifyLead } from "@/services/leads/qualification"
 
 import { ChatMessage } from "./ChatMessage"
 

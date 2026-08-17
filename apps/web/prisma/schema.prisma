@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LeadStatus {
+  NEW
+  QUALIFIED
+  CONTACTED
+  CONVERTED
+  LOST
+}
+
+enum LeadIntent {
+  UNKNOWN
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  FITNESS
+  MEMBERSHIP
+  TRIAL
+  BOOKING
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model Gym {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  website   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads         Lead[]
+  memberships   Membership[]
+  appointments  Appointment[]
+}
+
+model Lead {
+  id        String      @id @default(cuid())
+
+  gymId     String
+  gym       Gym         @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  name      String?
+  email     String?
+  phone     String?
+
+  intent    LeadIntent  @default(UNKNOWN)
+  status    LeadStatus  @default(NEW)
+  score     Int         @default(0)
+
+  source    String?     @default("website")
+  message   String?
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  conversations Conversation[]
+  appointments  Appointment[]
+
+  @@index([gymId])
+  @@index([status])
+  @@index([intent])
+  @@index([createdAt])
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ConversationMessage[]
+
+  @@index([leadId])
+}
+
+model ConversationMessage {
+  id             String      @id @default(cuid())
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role           MessageRole
+  content        String
+
+  createdAt      DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+model Membership {
+  id          String   @id @default(cuid())
+
+  gymId       String
+  gym         Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  duration    Int?
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([gymId])
+  @@index([isActive])
+}
+
+model Appointment {
+  id        String             @id @default(cuid())
+
+  gymId     String
+  gym       Gym                @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  leadId    String?
+  lead      Lead?              @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  scheduledAt DateTime
+  status      AppointmentStatus @default(PENDING)
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([gymId])
+  @@index([leadId])
+  @@index([scheduledAt])
+  @@index([status])
+}

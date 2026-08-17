@@ -1,5 +1,10 @@
+import { prisma } from "@/lib/prisma"
+import {
+  LeadIntent as PrismaLeadIntent,
+  LeadStatus as PrismaLeadStatus,
+} from "@/generated/prisma/client"
+
 import { qualifyLead } from "./qualification"
-import type { Lead } from "./types"
 
 interface CreateLeadInput {
   name: string
@@ -8,23 +13,79 @@ interface CreateLeadInput {
   message: string
 }
 
-export function createLead(
-  input: CreateLeadInput
-): Lead {
-  const qualification = qualifyLead(input.message)
+function toPrismaIntent(
+  intent:
+    | "unknown"
+    | "weight_loss"
+    | "muscle_gain"
+    | "fitness"
+    | "membership"
+    | "trial"
+    | "booking"
+): PrismaLeadIntent {
+  switch (intent) {
+    case "weight_loss":
+      return PrismaLeadIntent.WEIGHT_LOSS
 
-  const lead: Lead = {
-    id: crypto.randomUUID(),
-    name: input.name,
-    email: input.email,
-    phone: undefined,
-    intent: qualification.intent,
-    status: qualification.qualified
-      ? "qualified"
-      : "new",
-    score: qualification.score,
-    createdAt: new Date().toISOString(),
+    case "muscle_gain":
+      return PrismaLeadIntent.MUSCLE_GAIN
+
+    case "fitness":
+      return PrismaLeadIntent.FITNESS
+
+    case "membership":
+      return PrismaLeadIntent.MEMBERSHIP
+
+    case "trial":
+      return PrismaLeadIntent.TRIAL
+
+    case "booking":
+      return PrismaLeadIntent.BOOKING
+
+    default:
+      return PrismaLeadIntent.UNKNOWN
   }
+}
+
+export async function createLead(
+  input: CreateLeadInput
+) {
+  const qualification = qualifyLead(
+    input.message
+  )
+
+  const status = qualification.qualified
+    ? PrismaLeadStatus.QUALIFIED
+    : PrismaLeadStatus.NEW
+
+  let gym = await prisma.gym.findFirst({
+    where: {
+      name: input.gym,
+    },
+  })
+
+  if (!gym) {
+    gym = await prisma.gym.create({
+      data: {
+        name: input.gym,
+      },
+    })
+  }
+
+  const lead = await prisma.lead.create({
+    data: {
+      gymId: gym.id,
+      name: input.name,
+      email: input.email,
+      intent: toPrismaIntent(
+        qualification.intent
+      ),
+      status,
+      score: qualification.score,
+      source: "website",
+      message: input.message,
+    },
+  })
 
   return lead
 }
